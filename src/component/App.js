@@ -22,7 +22,7 @@ class App extends Component {
   render() {
     return (
       <div className="App">
-        <Repo onchange={this.changeRepo} />
+        <Repo className='repo' onchange={this.changeRepo} />
         <Labels labels={this.state.labels} onchange={this.search} />
         <Diagram data={this.results} />
       </div>
