@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { WithContext as ReactTags } from 'react-tag-input';
+import { Button } from 'react-bootstrap';
 
 const KeyCodes = {
     comma: 188,
@@ -17,6 +18,7 @@ class Labels extends Component {
         this.handleDelete = this.handleDelete.bind(this);
         this.handleAddition = this.handleAddition.bind(this);
         this.handleDrag = this.handleDrag.bind(this);
+        this.search = this.search.bind(this);
     }
 
     handleDelete(i) {
@@ -40,6 +42,16 @@ class Labels extends Component {
         // re-render
         this.setState({ tags: newTags });
     }
+
+    search() {
+        const { tags } = this.state;
+        var result = [];
+        for (var i = 0; i < tags.length; i++) {
+            result.push(tags[i].text)
+        }
+        this.props.onChange(result);
+    }
+
     render() {
         const { tags } = this.state;
         const { labels } = this.props;
@@ -51,13 +63,15 @@ class Labels extends Component {
             });
         }
         return (
-            <div>
+            <div className='labels'>
                 <ReactTags tags={tags}
                     suggestions={suggestions}
                     handleDelete={this.handleDelete}
                     handleAddition={this.handleAddition}
                     handleDrag={this.handleDrag}
-                    delimiters={delimiters} />
+                    delimiters={delimiters}
+                    placeholder='Enter your labels' />
+                <Button bsSize="small" bsStyle="primary" onClick={this.search}>Search</Button>
             </div>
         )
     }

@@ -40,7 +40,7 @@ class App extends Component {
   render() {
     return (
       <div className="App">
-        <Repo className='repo' onChange={this.changeRepo} />
+        <Repo onChange={this.changeRepo} />
         <Labels labels={this.state.labels} onChange={this.search} />
         <Diagram data={this.results} />
       </div>
