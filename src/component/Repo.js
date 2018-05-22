@@ -20,6 +20,7 @@ class Repo extends Component {
         this.switchEdit = this.switchEdit.bind(this);
         this.updateInputValue = this.updateInputValue.bind(this);
         this.parseRepo = this.parseRepo.bind(this);
+        this.onKeyPress = this.onKeyPress.bind(this);
     }
 
     componentDidMount() {
@@ -40,6 +41,12 @@ class Repo extends Component {
             input: evt.target.value
         }
         );
+    }
+
+    onKeyPress(e) {
+        if (e.key === 'Enter') {
+            this.parseRepo();
+        }
     }
 
     parseRepo() {
@@ -76,7 +83,7 @@ class Repo extends Component {
         }
         return (
             <div className='repo'>
-                <input type='text' onChange={this.updateInputValue} />
+                <input type='text' onChange={this.updateInputValue} onKeyPress={this.onKeyPress} />
                 <Button bsSize="small" bsStyle="primary" onClick={this.parseRepo}>Save</Button>
                 <Button bsSize="small" bsStyle="link" onClick={this.switchEdit}>Cancel</Button>
                 <Label bsStyle="danger">{ error }</Label>
