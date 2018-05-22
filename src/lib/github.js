@@ -39,8 +39,31 @@ class Github {
 
         }
 
+        function _getUser(item, callback) {
+            if (!item.user) {
+                console.log(item)
+            }
+            getUser(item.user.login, function(info) {
+                item.user = info;
+                callback(item)
+            })
+        }
+
+        function figureUsers(items, callback) {
+            var promises = [];
+            for (var i = 0; i < items.length; i++) {
+                var item = items[i];
+                promises.push(new Promise(function(resolve, reject) {
+                    _getUser(item, resolve)
+                }))
+            }
+
+            Promise.all(promises).then(callback).catch(handleError);
+        }
+
         _getIssues(1, function (error, results) {
             var totalCount = results.data.total_count;
+            handleResult(results.data.items);
             var promises = [];
             for (var i = 2; i < totalCount / per_page + 1; i++) {
                 promises.push(new Promise(function (resolve, reject) {
@@ -58,7 +81,8 @@ class Github {
                 for (var i = 0; i < values.length; i++) {
                     handleResult(values[i]);
                 }
-                callback(arr);
+
+                figureUsers(arr, callback);
             }).catch(handleError);
         })
     }
