@@ -71,7 +71,7 @@ class Labels extends Component {
                     handleDrag={this.handleDrag}
                     delimiters={delimiters}
                     placeholder='Enter your labels' />
-                <Button bsSize="small" bsStyle="primary" onClick={this.search}>Search</Button>
+                <Button bsSize="small" bsStyle="success" onClick={this.search}>Search</Button>
             </div>
         )
     }

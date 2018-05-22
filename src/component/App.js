@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import Auth from './Auth.js';
 import Repo from './Repo.js';
 import Labels from './Labels.js';
 import Diagram from './Diagram.js';
@@ -15,14 +16,14 @@ class App extends Component {
     this.github = new Github();
 
     this.changeRepo = this.changeRepo.bind(this);
+    this.search = this.search.bind(this);
+    this.auth = this.auth.bind(this);
   }
 
   changeRepo(name, owner) {
     if (name && owner) {
       this.github.queryLabels(name, owner, function (labels) {
         this.setState(function () {
-        console.log(labels)
-        
           return {
             repo: {
               name: name,
@@ -35,14 +36,28 @@ class App extends Component {
     }
   }
 
-  search(labels) { }
+  search(labels) {
+    const {repo} = this.state;
+    this.github.searchDetail(repo.name, repo.owner, labels, function (results) {
+      this.setState(function() {
+        return {
+          results: results
+        }
+      })
+    }.bind(this));
+  }
+
+  auth(options) {
+    this.github.auth(options);
+  }
 
   render() {
     return (
       <div className="App">
+        <Auth onChange={this.auth}/>
         <Repo onChange={this.changeRepo} />
         <Labels labels={this.state.labels} onChange={this.search} />
-        <Diagram data={this.results} />
+        <Diagram data={this.state.results} />
       </div>
     );
   }
