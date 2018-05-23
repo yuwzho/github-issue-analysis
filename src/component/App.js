@@ -11,7 +11,8 @@ class App extends Component {
     this.state = {
       repo: {},
       labels: [],
-      results: []
+      results: [],
+      searchable: true
     }
     this.github = new Github();
 
@@ -37,11 +38,17 @@ class App extends Component {
   }
 
   search(labels) {
-    const {repo} = this.state;
+    const { repo } = this.state;
+    this.setState(function () {
+      return {
+        searchable: false
+      }
+    });
     this.github.searchDetail(repo.name, repo.owner, labels, function (results) {
-      this.setState(function() {
+      this.setState(function () {
         return {
-          results: results
+          results: results,
+          searchable: true
         }
       })
     }.bind(this));
@@ -56,8 +63,8 @@ class App extends Component {
       <div className="App">
         <Auth onChange={this.auth} />
         <Repo onChange={this.changeRepo} />
-        <Labels labels={this.state.labels} onChange={this.search} />
-        {this.state.results.length > 0 ? <Diagram data={this.state.results} /> : ""}
+        <Labels labels={this.state.labels} onChange={this.search} active={this.state.searchable} />
+        {this.state.results.length > 0 ? <Diagram data={this.state.results} owner={this.state.repo.owner} repo={this.state.repo.name} /> : ''}
       </div>
     );
   }
