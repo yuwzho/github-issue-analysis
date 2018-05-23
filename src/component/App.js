@@ -54,10 +54,10 @@ class App extends Component {
   render() {
     return (
       <div className="App">
-        <Auth onChange={this.auth}/>
+        <Auth onChange={this.auth} />
         <Repo onChange={this.changeRepo} />
         <Labels labels={this.state.labels} onChange={this.search} />
-        <Diagram data={this.state.results} />
+        {this.state.results.length > 0 ? <Diagram data={this.state.results} /> : ""}
       </div>
     );
   }

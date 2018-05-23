@@ -31,6 +31,10 @@ div.ReactTags__tags {
   margin-left: 5px;
 }
 
+.diagram {
+  margin-top: 10px;
+}
+
 /* Styles for the input */
 div.ReactTags__tagInput {
   width: 200px;

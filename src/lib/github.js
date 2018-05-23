@@ -28,15 +28,6 @@ class Github {
 
         function handleResult(items) {
             arr = arr.concat(items);
-            // console.log(items)
-            // items.forEach(item => {
-            //     var user = item.user.login;
-            //     getUser(user, function (info) {
-            //         item.user = info;
-            //         arr.push(item);
-            //     })
-            // });
-
         }
 
         function _getUser(item, callback) {
@@ -53,7 +44,7 @@ class Github {
             var promises = [];
             for (var i = 0; i < items.length; i++) {
                 var item = items[i];
-                promises.push(new Promise(function(resolve, reject) {
+                promises.push(new Promise(function(resolve/*, reject*/) {
                     _getUser(item, resolve)
                 }))
             }
@@ -89,6 +80,9 @@ class Github {
 
     getUser(user, callback) {
         octokit.users.getForUser({username: user}, function (error, result) {
+            if (error) {
+                console.error(error)
+            }
             if (result) {
                 callback(result.data); 
             }

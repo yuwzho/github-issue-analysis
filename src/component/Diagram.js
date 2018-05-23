@@ -1,33 +1,54 @@
 import React, { Component } from 'react';
-import { Table } from 'react-bootstrap';
+import ReactTable from 'react-table';
+import 'react-table/react-table.css';
 
 class Diagram extends Component {
     render() {
         console.log(this.props.data)
-        return (<Table responsive>
-            <thead>
-                <tr>
-                    <th>title</th>
-                    <th>creator</th>
-                    <th>create date</th>
-                    <th>close date</th>
-                    <th>update date</th>
-                    <th>creator company</th>
-                    <th>creator location</th>
-                </tr>
-            </thead>
-            <tbody>
-                {this.props.data.map(item=><tr>
-                    <td><a href={item.html_url}>{item.title}</a></td>
-                    <td>{item.user.name}</td>
-                    <td>{item.created_at}</td>
-                    <td>{item.closed_at}</td>
-                    <td>{item.update_at}</td>
-                    <td>{item.user.company}</td>
-                    <td>{item.user.location}</td>
-                </tr>)}
-            </tbody>
-        </Table>)
+        return (<div className='diagram'>
+            <ReactTable
+                data={this.props.data}
+                columns={[
+                    {
+                        columns: [
+                            {
+                                Header: 'Title',
+                                id: 'title',
+                                accessor: item=><a target='_blank' href={item.html_url}>{item.title}</a>
+                            },
+                            {
+                                Header: 'creator',
+                                accessor: item => item.user.name || item.user.login,
+                                id: 'creator'
+                            },
+                            {
+                                Header: 'Create date',
+                                accessor: 'created_at'
+                            },
+                            {
+                                Header: 'Close date',
+                                accessor: 'closed_at'
+                            },
+                            {
+                                Header: 'Creator company',
+                                accessor: item => item.user.company,
+                                id: 'company'
+                            },
+                            {
+                                Header: 'Creator location',
+                                accessor: item => item.user.location,
+                                id: 'location'
+                            }
+                        ]
+                    }
+                ]}
+                defaultSorted={[{
+                    id: 'created_at'
+                }]}
+                defaultPageSize={25}
+                className="-striped -highlight"
+            />
+        </div>)
     }
 }
 
