@@ -4,6 +4,7 @@ import Repo from './Repo.js';
 import Labels from './Labels.js';
 import Diagram from './Diagram.js';
 import Github from '../lib/github.js';
+import ErrorPanel from './ErrorPanel.js';
 import {tracePageView} from '../lib/telemetry.js';
 
 class App extends Component {
@@ -13,13 +14,15 @@ class App extends Component {
       repo: {},
       labels: [],
       results: [],
-      searchable: true
+      searchable: true,
+      error: ''
     }
     this.github = new Github();
 
     this.changeRepo = this.changeRepo.bind(this);
     this.search = this.search.bind(this);
     this.auth = this.auth.bind(this);
+    this.clearError = this.clearError.bind(this);
     tracePageView();
   }
 
@@ -57,7 +60,21 @@ class App extends Component {
   }
 
   auth(options) {
-    this.github.auth(options);
+    this.github.auth(options, function (error) {
+      this.setState(function() {
+        return {
+          error: error
+        }
+      })
+    }.bind(this));
+  }
+
+  clearError() {
+    this.setState(function() {
+      return {
+        error: ''
+      }
+    });
   }
 
   render() {
@@ -67,6 +84,7 @@ class App extends Component {
         <Repo onChange={this.changeRepo} />
         <Labels labels={this.state.labels} onChange={this.search} active={this.state.searchable} />
         {this.state.results.length > 0 ? <Diagram data={this.state.results} owner={this.state.repo.owner} repo={this.state.repo.name} /> : ''}
+        {this.state.error ? <ErrorPanel data={this.state.error} onClose={this.clearError}/> : ''}
       </div>
     );
   }

@@ -111,8 +111,9 @@ class Auth extends Component {
     for (var i = 0; i < METHODS.length; i++) {
       if (METHODS[i].title === this.state.title) {
         option['type'] = METHODS[i].method;
+        console.log(METHODS[i].inputs);
         for (var j = 0; j < METHODS[i].inputs.length; j++) {
-          option[METHODS[i].inputs[j].hint] = this.state[METHODS[i].inputs[j].type];
+          option[METHODS[i].inputs[j].hint] = this.state[METHODS[i].inputs[j].hint];
         }
       }
     }

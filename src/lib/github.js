@@ -1,11 +1,16 @@
 var octokit = require('@octokit/rest')();
 
-var  userCache = {}
- 
+var userCache = {}
+
 class Github {
 
-  auth(option) {
-    octokit.authenticate(option);
+  auth(option, callback) {
+    try {
+      octokit.authenticate(option);
+    }
+    catch (err) {
+      callback(JSON.stringify(option) + err.message)
+    }
   }
 
   searchDetail(name, owner, labels, callback) {
@@ -20,12 +25,12 @@ class Github {
     var arr = [];
 
     function _getIssues(page, callback) {
-      octokit.search.issues({ q: queryString + 'user:' + owner + '+repo:' + name, sort: 'created', per_page: per_page, page: page }, callback);
+      octokit.search.issues({ q: queryString  + '+repo:' + owner + '/' +  name, sort: 'created', per_page: per_page, page: page }, callback);
     }
 
     function handleError(error) {
       console.error('Error when getting issues ' + error);
-      callback(error);
+      callback(null, error);
     }
 
     function handleResult(items) {
@@ -36,9 +41,9 @@ class Github {
       if (!item.user) {
         console.log(item)
       }
-      getUser(item.user.login, function (info) {
-        item.user = info;
-        callback(item)
+      getUser(item.user.login, function (info, error) {
+        item.user = info || item.user;
+        callback(item, error)
       })
     }
 
@@ -88,6 +93,7 @@ class Github {
     octokit.users.getForUser({ username: user }, function (error, result) {
       if (error) {
         console.error(error)
+        callback(null, error)
       }
       if (result) {
         userCache[user] = result.data;
@@ -107,7 +113,7 @@ class Github {
 
     function handleError(error) {
       console.error('error when getting labels ' + error);
-      callback([]);
+      callback([], error);
     }
 
     function handleResult(data) {
@@ -123,9 +129,12 @@ class Github {
         handleResult(result.data);
 
         var ref = result.meta.link;
-        var index = ref.lastIndexOf(marker);
-        var endIndex = ref.indexOf('>', index);
-        var pageId = parseInt(ref.substring(index + marker.length, endIndex), 1);
+        var pageId = 1;
+        if (ref) {
+          var index = ref.lastIndexOf(marker);
+          var endIndex = ref.indexOf('>', index);
+          pageId = parseInt(ref.substring(index + marker.length, endIndex), 1);
+        }
         var promises = [];
 
         for (var i = 2; i <= pageId; i++) {

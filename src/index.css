@@ -21,6 +21,10 @@ body {
   margin-top: 20px;
 }
 
+.errormodal {
+  margin: 20px;
+}
+
 /* Example Styles for React Tags*/
 div.ReactTags__tags {
   position: relative;
