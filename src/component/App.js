@@ -4,6 +4,7 @@ import Repo from './Repo.js';
 import Labels from './Labels.js';
 import Diagram from './Diagram.js';
 import Github from '../lib/github.js';
+import {tracePageView} from '../lib/telemetry.js';
 
 class App extends Component {
   constructor(props) {
@@ -19,6 +20,7 @@ class App extends Component {
     this.changeRepo = this.changeRepo.bind(this);
     this.search = this.search.bind(this);
     this.auth = this.auth.bind(this);
+    tracePageView();
   }
 
   changeRepo(name, owner) {
