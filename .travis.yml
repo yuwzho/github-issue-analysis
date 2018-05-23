@@ -1,0 +1,13 @@
+language: node_js
+node_js:
+  - 6
+install:
+  - npm install -g npm
+  - npm install
+  - git config --global user.email "travis@travis-ci.org"
+  - git config --global user.name "Travis CI"
+  - git remote remove origin
+  - git remote add origin https://${git_token}@github.com/yuwzho/github-issue-analysis.git
+script:
+  - export CI=false
+  - npm run deploy
