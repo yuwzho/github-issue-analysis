@@ -9,7 +9,7 @@ class Github {
       octokit.authenticate(option);
     }
     catch (err) {
-      callback(JSON.stringify(option) + err.message)
+      callback(err.message)
     }
   }
 
