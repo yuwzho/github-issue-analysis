@@ -1,3 +1,5 @@
+import { paging } from './util';
+
 var octokit = require('@octokit/rest')();
 
 var userCache = {}
@@ -17,79 +19,51 @@ class Github {
     var per_page = 100;
     var queryString = '';
 
-    var getUser = this.getUser;
 
     for (var i = 0; i < labels.length; i++) {
       queryString = queryString + 'label:' + labels[i] + '+';
     }
-    var arr = [];
 
     function _getIssues(page, callback) {
-      octokit.search.issues({ q: queryString  + '+repo:' + owner + '/' +  name, sort: 'created', per_page: per_page, page: page }, callback);
+      octokit.search.issues({ q: queryString + '+repo:' + owner + '/' + name, sort: 'created', per_page: per_page, page: page }, callback);
     }
 
-    function handleError(error) {
-      console.error('Error when getting issues ' + error);
-      callback(null, error);
+    function _getTotalNumber(result) {
+      var count = result.data.total_count;
+      return Math.ceil(count / per_page);
     }
 
-    function handleResult(items) {
-      arr = arr.concat(items);
+    function _filter(values) {
+      return values.items;
     }
 
-    function _getUser(item, callback) {
-      if (!item.user) {
-        console.log(item)
-      }
-      getUser(item.user.login, function (info, error) {
-        item.user = info || item.user;
-        callback(item, error)
-      })
-    }
-
-    function figureUsers(items, callback) {
-      var promises = [];
-      for (var i = 0; i < items.length; i++) {
-        var item = items[i];
-        promises.push(new Promise(function (resolve/*, reject*/) {
-          _getUser(item, resolve)
-        }))
-      }
-
-      Promise.all(promises).then(callback).catch(handleError);
-    }
-
-    _getIssues(1, function (error, results) {
-      var totalCount = results.data.total_count;
-      handleResult(results.data.items);
-      var promises = [];
-      for (var i = 2; i < totalCount / per_page + 1; i++) {
-        promises.push(new Promise(function (resolve, reject) {
-          _getIssues(i, function (error, result) {
-            if (error) {
-              reject(error);
-            } else {
-              resolve(result.data.items);
-            }
-          })
-        }))
-      }
-
-      Promise.all(promises).then(function (values) {
-        for (var i = 0; i < values.length; i++) {
-          handleResult(values[i]);
-        }
-
-        figureUsers(arr, callback);
-      }).catch(handleError);
+    paging(_getIssues, _getTotalNumber, _filter, function(values, error) {
+      var count = values.length;
+      values.forEach(item => {
+        Github.getUser(item.user.login, function(info) {
+          item.user = info;
+          count--;
+          if (count === 0) {
+            console.log(values)
+            callback(values, error);
+          }
+        })
+      });
     })
   }
 
-  getUser(user, callback) {
-
-    if (userCache[user]) {
-      return userCache[user]
+  static getUser(user, callback) {
+    if (userCache[user] === 'waiting') {
+      setTimeout(() => {
+        Github.getUser(user, callback);
+      }, 2000);
+      return;
+    } else if (userCache[user]){
+      callback(userCache[user])
+      return;
     }
+
+    userCache[user] = 'waiting';
     octokit.users.getForUser({ username: user }, function (error, result) {
       if (error) {
         console.error(error)
@@ -105,58 +79,28 @@ class Github {
   queryLabels(name, owner, callback) {
     var per_page = 100;
     var marker = 'per_page=' + per_page + '&page=';
-    var arr = [];
-
     function _getLabels(page, callback) {
       octokit.issues.getLabels({ owner: owner, repo: name, per_page: per_page, page: page }, callback);
     }
 
-    function handleError(error) {
-      console.error('error when getting labels ' + error);
-      callback([], error);
+    function _getTotalNumber(response) {
+      var pageId = 1;
+      var ref = response.meta.link;
+      if (ref) {
+        var index = ref.lastIndexOf(marker);
+        var endIndex = ref.indexOf('>', index);
+        pageId = parseInt(ref.substring(index + marker.length, endIndex));
+      }
+      return pageId;
     }
 
-    function handleResult(data) {
-      for (var i = 0; i < data.length; i++) {
-        arr.push(data[i].name);
+    paging(_getLabels, _getTotalNumber, null, function (values, error) {
+      var results = [];
+      for (var i = 0; i < values.length; i++) {
+        results.push(values[i].name);
       }
-    }
-
-    _getLabels(1, function (error, result) {
-      if (error) {
-        handleError(error)
-      } else {
-        handleResult(result.data);
-
-        var ref = result.meta.link;
-        var pageId = 1;
-        if (ref) {
-          var index = ref.lastIndexOf(marker);
-          var endIndex = ref.indexOf('>', index);
-          pageId = parseInt(ref.substring(index + marker.length, endIndex), 1);
-        }
-        var promises = [];
-
-        for (var i = 2; i <= pageId; i++) {
-          promises.push(new Promise(function (resolve, reject) {
-            _getLabels(i, function (error, result) {
-              if (error) {
-                reject(error);
-              } else {
-                resolve(result.data);
-              }
-            })
-          }));
-        }
-
-        Promise.all(promises).then(function (values) {
-          for (var i = 0; i < values.length; i++) {
-            handleResult(values[i]);
-          }
-          callback(arr);
-        }).catch(handleError);
-      }
-    })
+      callback(results, error);
+    });
   }
 }
 

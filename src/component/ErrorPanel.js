@@ -2,10 +2,6 @@ import React, { Component } from 'react';
 import { Button, Modal } from 'react-bootstrap';
 
 class ErrorPanel extends Component {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
       return (<Modal show>
           <p className='errormodal'>{this.props.data}</p>

@@ -24,7 +24,7 @@ class Labels extends Component {
   handleDelete(i) {
     const { tags } = this.state;
     this.setState({
-      tags: tags.filter((tag, index) => index !== i),
+      tags: tags.filter((tag, index) => index !== i), // eslint-disable-line no-unused-vars
     });
   }
 

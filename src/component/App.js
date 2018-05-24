@@ -49,10 +49,11 @@ class App extends Component {
         searchable: false
       }
     });
-    this.github.searchDetail(repo.name, repo.owner, labels, function (results) {
+    this.github.searchDetail(repo.name, repo.owner, labels, function (results, error) {
       this.setState(function () {
         return {
-          results: results,
+          results: error ? [] : results,
+          error: error ? error : '',
           searchable: true
         }
       })

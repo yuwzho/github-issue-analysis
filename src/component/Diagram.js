@@ -12,7 +12,9 @@ class Diagram extends Component {
 
   exportFile() {
     const {owner, repo, data} = this.props;
-    var filename = owner+'-'+repo+'-'+Date.now().toISOString()+'.xlsx';
+    var now = new Date();
+    var isoString = now.toISOString();
+    var filename = owner+'-'+repo+'-'+ isoString +'.xlsx';
     var columns = [
         ['Title', 'Type', 'Creator', 'Create date', 'Close date', 'Creator company', 'Creator location']
     ];
