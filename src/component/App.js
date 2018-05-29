@@ -5,6 +5,7 @@ import Labels from './Labels.js';
 import Diagram from './Diagram.js';
 import Github from '../lib/github.js';
 import ErrorPanel from './ErrorPanel.js';
+import StateChoose from './StateChoose.js';
 import {tracePageView} from '../lib/telemetry.js';
 
 class App extends Component {
@@ -15,6 +16,8 @@ class App extends Component {
       labels: [],
       results: [],
       searchable: true,
+      type: [],
+      state: '',
       error: ''
     }
     this.github = new Github();
@@ -23,6 +26,8 @@ class App extends Component {
     this.search = this.search.bind(this);
     this.auth = this.auth.bind(this);
     this.clearError = this.clearError.bind(this);
+    this.stateChange = this.stateChange.bind(this);
+    this.typeChange = this.typeChange.bind(this);
     tracePageView();
   }
 
@@ -43,13 +48,22 @@ class App extends Component {
   }
 
   search(labels) {
-    const { repo } = this.state;
+    const { repo, type, state } = this.state;
     this.setState(function () {
       return {
         searchable: false
       }
     });
-    this.github.searchDetail(repo.name, repo.owner, labels, function (results, error) {
+
+    var queryString = '';
+    for (var i = 0; i < labels.length; i++) {
+      queryString = queryString + 'label:' + labels[i] + '+';
+    }
+    this.github.searchDetail({
+      name: repo.name,
+      owner: repo.owner,
+      queryString: queryString + type.join('+') + '+' + state
+    }, function (results, error) {
       this.setState(function () {
         return {
           results: error ? [] : results,
@@ -78,11 +92,38 @@ class App extends Component {
     });
   }
 
+  typeChange(e, value) {
+    const { type } = this.state;
+    var checked = e.target.checked;
+
+    if (checked) {
+      if (type.indexOf(value) < 0) {
+        type.push(value);
+      }
+    }else {
+      var index = type.indexOf(value);
+      if (index >= 0) {
+        type.splice(index, 1);
+      }
+    }
+
+    this.setState({
+      type: type
+    })
+  }
+
+  stateChange(value) {
+    this.setState({
+      state: value
+    });
+  }
+
   render() {
     return (
       <div className="App">
         <Auth onChange={this.auth} />
         <Repo onChange={this.changeRepo} />
+        <StateChoose onChange={this.stateChange} onTypeChange={this.typeChange} />
         <Labels labels={this.state.labels} onChange={this.search} active={this.state.searchable} />
         {this.state.results.length > 0 ? <Diagram data={this.state.results} owner={this.state.repo.owner} repo={this.state.repo.name} /> : ''}
         {this.state.error ? <ErrorPanel data={this.state.error} onClose={this.clearError}/> : ''}

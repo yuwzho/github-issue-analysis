@@ -15,14 +15,11 @@ class Github {
     }
   }
 
-  searchDetail(name, owner, labels, callback) {
+  searchDetail(options, callback) {
     var per_page = 100;
-    var queryString = '';
-
-
-    for (var i = 0; i < labels.length; i++) {
-      queryString = queryString + 'label:' + labels[i] + '+';
-    }
+    var name = options.name;
+    var owner = options.owner;
+    var queryString = options.queryString;
 
     function _getIssues(page, callback) {
       octokit.search.issues({ q: queryString + '+repo:' + owner + '/' + name, sort: 'created', per_page: per_page, page: page }, callback);

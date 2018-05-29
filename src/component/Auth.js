@@ -69,7 +69,7 @@ class Auth extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      title: '',
+      title: 'basic',
       inputs: [],
       username: '',
       password: ''
@@ -140,7 +140,7 @@ class Auth extends Component {
         </Navbar.Header>
         <Navbar.Collapse>
           <Nav>
-            <NavDropdown eventKey={1} title={this.state.title || 'Auth Method'} id='auth-method'>
+            <NavDropdown eventKey={1} title={this.state.title} id='auth-method'>
               {METHODS.map(item => <MenuItem eventKey={item.method} onSelect={() => { this.onSelect(item) }}>{item.title}</MenuItem>)}
             </NavDropdown>
             {(this.state.inputs.length > 0) ?
