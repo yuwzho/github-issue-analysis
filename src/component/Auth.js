@@ -69,7 +69,7 @@ class Auth extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      title: 'basic',
+      title: 'Authed',
       inputs: [],
       username: '',
       password: ''
@@ -77,10 +77,14 @@ class Auth extends Component {
 
     this.onSelect = this.onSelect.bind(this);
     this.auth = this.auth.bind(this);
+  }
 
+  componentWillMount() {
     var option = localStorage.getItem(AUTH_OPTION);
     if (option) {
       this.props.onChange(JSON.parse(option));
+    } else {
+      this.onSelect(METHODS[0]);
     }
   }
 
