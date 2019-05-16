@@ -101,7 +101,8 @@ class Auth extends Component {
     var value = evt.target.value;
     if (type === 'password') {
       this.setState({
-        password: value
+        password: value,
+        token: value
       })
     } else {
       this.setState({
