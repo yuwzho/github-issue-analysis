@@ -22,7 +22,7 @@ const METHODS = [
     inputs: [
       {
         hint: 'token',
-        type: 'password'
+        type: 'token'
       }
     ]
   },
@@ -46,7 +46,7 @@ const METHODS = [
     inputs: [
       {
         hint: 'token',
-        type: 'password'
+        type: 'token'
       }
     ]
   },
